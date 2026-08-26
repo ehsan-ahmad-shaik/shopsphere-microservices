@@ -1,0 +1,105 @@
+package com.product.controller;
+
+import java.util.List;
+
+import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import com.product.dto.ProductRequest;
+import com.product.dto.ProductResponse;
+import com.product.service.ProductService;
+import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+
+@RefreshScope
+@AllArgsConstructor
+@RestController
+@RequestMapping("/product")
+public class ProductController 
+{
+
+	private final ProductService productService;
+	
+	// CREATE PRODUCT
+	
+	@PostMapping()
+	public ResponseEntity<ProductResponse> saveProduct(@RequestBody @Valid ProductRequest productRequest)
+	{
+		ProductResponse newProduct = productService.createProduct(productRequest);
+		if(newProduct!=null)
+		{
+			return new ResponseEntity<ProductResponse>(newProduct, HttpStatus.CREATED);
+		}else {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); 
+		}
+	}
+	
+	// GET PRODUCT DATA BY ID
+	
+	@GetMapping("/{id}")
+	public ResponseEntity<ProductResponse> getProductById(@PathVariable Long id)
+	{
+		ProductResponse productById = productService.getProductById(id);
+		return new ResponseEntity<ProductResponse>(productById,  HttpStatus.OK);
+	}
+	
+	// GET ALL PRODUCTS DATA
+	
+	@GetMapping("/getall")
+	public ResponseEntity<List<ProductResponse>> getAllProductsData() {
+
+	    List<ProductResponse> allProducts = productService.getAllProducts();
+
+	    if (allProducts.isEmpty()) {
+	        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	    }
+
+	    return new ResponseEntity<>(allProducts, HttpStatus.OK);
+	}
+	
+	// UPDATE PRODUCT BY ID
+	
+	@PutMapping("/{id}")
+	public ResponseEntity<ProductResponse> updateProductById(@PathVariable Long id, @RequestBody ProductRequest productRequest)
+	{
+		ProductResponse updatedProduct = productService.updateProduct(id, productRequest);
+		if(updatedProduct.getId()==id) 
+			 return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
+		else
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			
+	}
+	
+	// DELETE PROSUCT BY ID
+	
+	@DeleteMapping("/{id}")
+	public ResponseEntity<?> deleteProductById(@PathVariable Long id)
+	{
+		productService.deleteProduct(id);
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+	
+	// GET PRODUCTS DATA BY CATEGORY
+	// http://localhost:9090/product/category?category=Laptops
+	
+	@GetMapping("/category")
+	public ResponseEntity<List<ProductResponse>> getProductByCategory(@RequestParam String category)
+	{
+		List<ProductResponse> productsByCategory = productService.getProductsByCategory(category);
+		if(productsByCategory.isEmpty()) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<>(productsByCategory, HttpStatus.OK);
+	}
+	
+	
+}

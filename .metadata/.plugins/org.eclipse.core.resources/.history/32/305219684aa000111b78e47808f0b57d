@@ -1,0 +1,81 @@
+package com.order.serviceimpl;
+
+import java.util.List;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
+
+import com.order.dto.OrderRequest;
+import com.order.dto.OrderResponse;
+import com.order.entity.OrderEntity;
+import com.order.repository.OrderRepository;
+import com.order.service.OrderService;
+
+import lombok.AllArgsConstructor;
+
+
+@Service
+@AllArgsConstructor
+public class OrderServiceImpl implements OrderService 
+{
+	private final OrderRepository orderRepository;
+	private final ModelMapper modelMapper;	
+	
+	@Override
+	public OrderResponse createOrder(OrderRequest request) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public OrderResponse getOrderById(Long id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<OrderResponse> getAllOrders() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<OrderResponse> getOrdersByUserId(Long userId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public OrderResponse updateOrderStatus(Long id, String status) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public OrderResponse cancelOrder(Long id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void deleteOrder(Long id) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	
+	
+	
+	
+				// CONVERTING UserRequest TO UserEntity
+				private OrderEntity converToProductEntity(OrderRequest orderRequest) 
+				{
+					return modelMapper.map(orderRequest, OrderEntity.class);
+				}
+				// CONVERTING UserEntity TO UserResponse
+				private ProductResponse converToUserResponse(ProductEntity productEntity) {
+					return modelMapper.map(productEntity, ProductResponse.class);
+				}
+
+	
+}

@@ -1,0 +1,207 @@
+package com.order.serviceimpl;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
+import com.order.client.ProductClient;
+import com.order.client.UserClient;
+import com.order.client.dto.Product;
+import com.order.client.dto.User;
+import com.order.dto.OrderItemRequest;
+import com.order.dto.OrderRequest;
+import com.order.dto.OrderResponse;
+import com.order.entity.OrderEntity;
+import com.order.entity.OrderItem;
+import com.order.exception.OrderNotFoundException;
+import com.order.exception.ProductNotFoundException;
+import com.order.exception.QuantityMustBeLessThanStockException;
+import com.order.exception.UserNotFoundException;
+import com.order.repository.OrderRepository;
+import com.order.service.OrderService;
+
+import lombok.AllArgsConstructor;
+
+
+@Service
+@AllArgsConstructor
+public class OrderServiceImpl implements OrderService 
+{
+	private final OrderRepository orderRepository;
+	private final ModelMapper modelMapper;	
+	private final ProductClient productClient;
+	private final UserClient userClient;
+	
+	@Override
+	public OrderResponse createOrder(OrderRequest request) {
+
+		// 1. CHECK USER EXISTS
+
+		User userById = userClient.getUserById(request.getUserId())
+				.orElseThrow(() -> new UserNotFoundException("User not found with this id: " + request.getUserId()));
+
+		System.out.println("\nUser Details : " + userById + "\n");
+
+		// 2. CREATE ORDER
+
+		OrderEntity order = new OrderEntity();
+
+		order.setUserId(request.getUserId());
+
+		order.setCreatedAt(LocalDateTime.now());
+
+		order.setUpdatedAt(LocalDateTime.now());
+
+		order.setStatus(request.getStatus());
+
+		// 3. CREATE ORDER ITEMS LIST
+
+		List<OrderItem> items = new ArrayList<>();
+
+		// Total of all subtotals
+		BigDecimal totalAmount = BigDecimal.ZERO;
+
+		// 4. LOOP THROUGH REQUEST ITEMS
+
+		for (OrderItemRequest orderItemRequest : request.getItems()) {
+
+			// Get product from Product Service
+
+			Product productById = productClient.getProductById(orderItemRequest.getProductId())
+					.orElseThrow(() -> new ProductNotFoundException(
+							"Product not found by this id: " + orderItemRequest.getProductId()));
+
+			System.out.println("\nProduct Details : " + productById + "\n");
+
+			// Check product ID
+
+			if (!productById.getId().equals(orderItemRequest.getProductId())) {
+
+				throw new ProductNotFoundException("Product not found by this id: " + orderItemRequest.getProductId());
+			}
+
+			// Check available quantity
+
+			if (productById.getQuantity() < orderItemRequest.getQuantity()) {
+
+				throw new QuantityMustBeLessThanStockException("Requested quantity is greater than "
+						+ "available product quantity. " + "Available quantity: " + productById.getQuantity());
+			}
+
+			// Get product price
+
+			BigDecimal price = BigDecimal.valueOf(productById.getPrice());
+
+			// Get requested quantity
+
+			Integer quantity = orderItemRequest.getQuantity();
+
+			// Calculate subtotal
+
+			BigDecimal subtotal = price.multiply(BigDecimal.valueOf(quantity));
+
+			// Create OrderItem
+
+			OrderItem orderItem = new OrderItem();
+
+			orderItem.setProductId(orderItemRequest.getProductId());
+
+			orderItem.setQuantity(quantity);
+
+			orderItem.setPrice(price);
+
+			orderItem.setSubtotal(subtotal);
+
+			// Set parent order
+			orderItem.setOrder(order);
+
+			// Add OrderItem to list
+			items.add(orderItem);
+
+			// Add subtotal to total amount
+
+			totalAmount = totalAmount.add(subtotal);
+		}
+
+		// 5. SET ORDER ITEMS
+
+		order.setItems(items);
+
+		// 6. SET TOTAL AMOUNT
+
+		order.setTotalAmount(totalAmount);
+
+		// 7. SAVE ORDER
+
+		OrderEntity savedOrder = orderRepository.save(order);
+
+		// 8. CONVERT ENTITY TO RESPONSE
+
+		return converToOrderResponse(savedOrder);
+	}
+
+	@Override
+	public OrderResponse getOrderById(Long id) {
+		// TODO Auto-generated method stub
+		OrderEntity order = orderRepository.findById(id).orElseThrow(()->new OrderNotFoundException("Order not found by this id : "+id));
+		return converToOrderResponse(order);
+	}
+
+	@Override
+	public List<OrderResponse> getAllOrders() {
+		// TODO Auto-generated method stub
+		List<OrderEntity> allorderslist = orderRepository.findAll();
+		if(allorderslist.isEmpty())
+		{
+			return Collections.emptyList();
+		}else {
+		List<OrderResponse> list = allorderslist.stream().map(order->converToOrderResponse(order)).toList();
+		return list;
+		}
+	}
+
+	@Override
+	public List<OrderResponse> getOrdersByUserId(Long userId) {
+		// TODO Auto-generated method stub
+		User userById = userClient.getUserById(userId)
+				.orElseThrow(() -> new UserNotFoundException("User not found with this id: " + userId));
+		return null;
+	}
+
+	@Override
+	public OrderResponse updateOrderStatus(Long id, String status) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public OrderResponse cancelOrder(Long id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void deleteOrder(Long id) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	
+	
+	
+	
+				// CONVERTING OrderRequest TO OrderEntity
+				private OrderEntity converToOrderEntity(OrderRequest orderRequest) 
+				{
+					return modelMapper.map(orderRequest, OrderEntity.class);
+				}
+				// CONVERTING OrderEntity TO OrderResponse
+				private OrderResponse converToOrderResponse(OrderEntity orderEntity) {
+					return modelMapper.map(orderEntity, OrderResponse.class);
+				}
+
+	
+}

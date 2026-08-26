@@ -1,0 +1,90 @@
+package com.order.serviceimpl;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
+
+import com.order.dto.OrderRequest;
+import com.order.dto.OrderResponse;
+import com.order.entity.OrderEntity;
+import com.order.repository.OrderRepository;
+import com.order.service.OrderService;
+
+import lombok.AllArgsConstructor;
+
+
+@Service
+@AllArgsConstructor
+public class OrderServiceImpl implements OrderService 
+{
+	private final OrderRepository orderRepository;
+	private final ModelMapper modelMapper;	
+	
+	@Override
+	public OrderResponse createOrder(OrderRequest request) {
+		// TODO Auto-generated method stub
+		OrderEntity newOrder = converToOrderEntity(request);
+		
+		
+		
+		newOrder.setTotalAmount(request.);
+		newOrder.setCreatedAt(LocalDateTime.now());
+		newOrder.setUpdatedAt(LocalDateTime.now());
+		newOrder = orderRepository.save(newOrder);
+		return converToOrderResponse(newOrder);
+	}
+
+	@Override
+	public OrderResponse getOrderById(Long id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<OrderResponse> getAllOrders() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<OrderResponse> getOrdersByUserId(Long userId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public OrderResponse updateOrderStatus(Long id, String status) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public OrderResponse cancelOrder(Long id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void deleteOrder(Long id) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	
+	
+	
+	
+				// CONVERTING OrderRequest TO OrderEntity
+				private OrderEntity converToOrderEntity(OrderRequest orderRequest) 
+				{
+					return modelMapper.map(orderRequest, OrderEntity.class);
+				}
+				// CONVERTING OrderEntity TO OrderResponse
+				private OrderResponse converToOrderResponse(OrderEntity orderEntity) {
+					return modelMapper.map(orderEntity, OrderResponse.class);
+				}
+
+	
+}

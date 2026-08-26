@@ -1,0 +1,77 @@
+package com.product.serviceimpl;
+
+import java.util.List;
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
+import com.product.dto.ProductRequest;
+import com.product.dto.ProductResponse;
+import com.product.entity.ProductEntity;
+import com.product.exception.ProductNotFoundException;
+import com.product.repository.ProductRepository;
+import com.product.service.ProductService;
+import lombok.AllArgsConstructor;
+
+@Service
+@AllArgsConstructor
+public class ProductServiceImpl implements ProductService
+{
+
+	private final ProductRepository productRepository;
+	private final ModelMapper modelMapper;
+	
+	@Override
+	public ProductResponse createProduct(ProductRequest request) {
+		// TODO Auto-generated method stub
+		ProductEntity newProduct = converToProductEntity(request);
+		newProduct = productRepository.save(newProduct);
+		return converToUserResponse(newProduct);
+	}
+
+	@Override
+	public ProductResponse getProductById(Long id) {
+		// TODO Auto-generated method stub
+		ProductEntity product = productRepository.findById(id).orElseThrow(()->new ProductNotFoundException("Product Not Found by this id : "+id));
+		return converToUserResponse(product);
+	}
+
+	@Override
+	public List<ProductResponse> getAllProducts() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ProductResponse updateProduct(Long id, ProductRequest request) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void deleteProduct(Long id) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public List<ProductResponse> getProductsByCategory(String category) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	
+	
+	
+	
+			// CONVERTING UserRequest TO UserEntity
+			private ProductEntity converToProductEntity(ProductRequest productRequest) 
+			{
+				return modelMapper.map(productRequest, ProductEntity.class);
+			}
+			// CONVERTING UserEntity TO UserResponse
+			private ProductResponse converToUserResponse(ProductEntity productEntity) {
+				return modelMapper.map(productEntity, ProductResponse.class);
+			}
+	
+	
+	
+}

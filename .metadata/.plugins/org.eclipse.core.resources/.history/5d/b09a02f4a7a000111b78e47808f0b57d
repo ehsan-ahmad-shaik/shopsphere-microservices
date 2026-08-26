@@ -1,0 +1,70 @@
+package com.user.dto;
+
+import java.time.LocalDateTime;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class UserRequest 
+{
+	
+	@NotBlank(message = "Name must not be null or empty")
+    @Pattern(
+        regexp = "^[A-Za-z][A-Za-z ]*$",
+        message = "Name must contain only letters and spaces and must not start with a space"
+    )
+    private String name;
+
+    @NotBlank(message = "Email must not be null or empty")
+    @jakarta.validation.constraints.Email(
+        message = "Please provide a valid email address"
+    )
+    private String email;
+
+    @NotBlank(message = "Password must not be null or empty")
+    @Size(min = 8, message = "Password must be at least 8 characters long")
+    @Pattern(
+        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]+$",
+        message = "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character"
+    )
+    private String password;
+
+    @NotBlank(message = "Mobile number must not be null or empty")
+    @Pattern(
+        regexp = "^[6-9][0-9]{9}$",
+        message = "Mobile number must be exactly 10 digits and start with 6, 7, 8, or 9"
+    )
+    private String phone;
+
+    @NotBlank(message = "Address must not be null or empty")
+    @Size(max = 255, message = "Address must not exceed 255 characters")
+    private String address;
+
+    @NotBlank(message = "City must not be null or empty")
+    @Pattern(
+        regexp = "^[A-Za-z]+(?:[ .'-][A-Za-z]+)*$",
+        message = "City must contain only valid letters and must not start with a space"
+    )
+    private String city;
+
+    @NotBlank(message = "State must not be null or empty")
+    @Pattern(
+        regexp = "^[A-Za-z]+(?:[ .'-][A-Za-z]+)*$",
+        message = "State must contain only valid letters and must not start with a space"
+    )
+    private String state;
+
+    @NotBlank(message = "Pincode must not be null or empty")
+    @Pattern(
+        regexp = "^[0-9]{6}$",
+        message = "Pincode must contain exactly 6 digits"
+    )
+    private String pincode;
+
+}

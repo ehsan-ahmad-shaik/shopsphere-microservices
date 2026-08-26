@@ -1,0 +1,5 @@
+package com.order.client.dto;
+
+public class Product {
+
+}

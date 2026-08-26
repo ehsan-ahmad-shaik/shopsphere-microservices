@@ -1,0 +1,22 @@
+spring.application.name=API-Gateway
+
+server.port=9090
+
+eureka.instance.instance-id=${spring.application.name}:${server.port}
+eureka.instance.hostname=localhost
+eureka.instance.prefer-ip-address=false
+
+
+# Eureka
+eureka.client.service-url.defaultZone=http://localhost:8761/eureka/
+
+
+# Gateway routes
+spring.cloud.gateway.server.webflux.routes[0].id=user-api
+spring.cloud.gateway.server.webflux.routes[0].uri=lb://User-Service
+spring.cloud.gateway.server.webflux.routes[0].predicates[0]=Path=/user/**
+
+# Gateway routes
+spring.cloud.gateway.server.webflux.routes[1].id=product-api
+spring.cloud.gateway.server.webflux.routes[1].uri=lb://Product-Service
+spring.cloud.gateway.server.webflux.routes[1].predicates[0]=Path=/product/**

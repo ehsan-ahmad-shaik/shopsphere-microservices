@@ -1,0 +1,10 @@
+package com.user.service;
+
+import com.user.dto.UserRequest;
+import com.user.dto.UserResponse;
+
+public interface UserService 
+{
+	// CREATE USER
+	public UserResponse createUser(UserRequest userRequest);
+}

@@ -1,0 +1,103 @@
+package com.user.serviceimpl;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
+
+import com.user.dto.UserRequest;
+import com.user.dto.UserResponse;
+import com.user.entity.UserEntity;
+import com.user.exception.UserNotFoundException;
+import com.user.repository.UserRepository;
+import com.user.service.UserService;
+import lombok.AllArgsConstructor;
+
+@Service
+@AllArgsConstructor
+public class UserServiceImpl implements UserService 
+{
+	
+	private final UserRepository userRepository;
+	private final ModelMapper modelMapper;
+	
+	// CREATE USER
+	@Override
+	public UserResponse createUser(UserRequest userRequest) 
+	{
+		// TODO Auto-generated method stub
+		UserEntity newuser = converToUserEntity(userRequest);
+		newuser.setCreatedAt(LocalDateTime.now());
+		UserEntity saveduser = userRepository.save(newuser);
+		return converToUserResponse(saveduser);
+	}
+	
+	
+
+	@Override
+	public UserResponse getUserById(Long id) {
+		// TODO Auto-generated method stub
+		UserEntity user = userRepository.findById(id).orElseThrow(() ->new UserNotFoundException("User not found with id: " + id));
+		return converToUserResponse(user);
+	}
+
+
+	@Override
+	public List<UserResponse> getAllUsers() {
+		// TODO Auto-generated method stub
+		
+		return null;
+	}
+
+
+
+
+
+
+
+	@Override
+	public UserResponse updateUserById(Long id, UserRequest userRequest) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+
+
+
+
+	@Override
+	public void deleteUserById(Long id) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+
+
+
+
+	@Override
+	public UserResponse getUserByEmail(String email) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	
+	
+	
+	// CONVERTING UserRequest TO UserEntity
+		private UserEntity converToUserEntity(UserRequest userRequest) 
+		{
+			return modelMapper.map(userRequest, UserEntity.class);
+		}
+		// CONVERTING UserEntity TO UserResponse
+		private UserResponse converToUserResponse(UserEntity userEntity) {
+			return modelMapper.map(userEntity, UserResponse.class);
+		}
+
+
+}

@@ -1,0 +1,59 @@
+package com.product.serviceimpl;
+
+import java.util.List;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
+
+import com.product.dto.ProductRequest;
+import com.product.dto.ProductResponse;
+import com.product.service.ProductService;
+import lombok.AllArgsConstructor;
+
+@Service
+@AllArgsConstructor
+public class ProductServiceImpl implements ProductService
+{
+
+	@Override
+	public ProductResponse createProduct(ProductRequest request) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ProductResponse getProductById(Long id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<ProductResponse> getAllProducts() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ProductResponse updateProduct(Long id, ProductRequest request) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void deleteProduct(Long id) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public List<ProductResponse> getProductsByCategory(String category) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	
+	
+	
+	
+	
+}

@@ -1,0 +1,140 @@
+package com.order.serviceimpl;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
+import com.order.client.ProductClient;
+import com.order.client.UserClient;
+import com.order.client.dto.Product;
+import com.order.client.dto.User;
+import com.order.dto.OrderItemRequest;
+import com.order.dto.OrderRequest;
+import com.order.dto.OrderResponse;
+import com.order.entity.OrderEntity;
+import com.order.entity.OrderItem;
+import com.order.exception.ProductNotFoundException;
+import com.order.exception.QuantityMustBeLessThanStockException;
+import com.order.exception.UserNotFoundException;
+import com.order.repository.OrderRepository;
+import com.order.service.OrderService;
+
+import lombok.AllArgsConstructor;
+
+
+@Service
+@AllArgsConstructor
+public class OrderServiceImpl implements OrderService 
+{
+	private final OrderRepository orderRepository;
+	private final ModelMapper modelMapper;	
+	private final ProductClient productClient;
+	private final UserClient userClient;
+	
+	@Override
+	public OrderResponse createOrder(OrderRequest request) 
+	{
+		User userbyid = userClient.getUserById(request.getUserId()).orElseThrow(() ->new UserNotFoundException("User not found with this id: " + request.getUserId()));
+		System.out.println("\nUser Deatiles : "+userbyid+"\n");
+	    // Create OrderEntity
+	    OrderEntity order = new OrderEntity();
+	    order.setUserId(request.getUserId());
+	    order.setCreatedAt(LocalDateTime.now());
+	    order.setUpdatedAt(LocalDateTime.now());
+	    order.setStatus(request.getStatus());
+	    
+	    List<OrderItemRequest> itemslist = request.getItems();
+	    
+	    double totalamt=0;
+	    
+	    for (OrderItemRequest orderItemRequest : itemslist) 
+	    {
+	    	Product productById = productClient.getProductById(orderItemRequest.getProductId()).orElseThrow(()-> new ProductNotFoundException("Product not found by this id : "+orderItemRequest.getProductId()));
+	    	System.out.println("\nProduct Deatiles : "+productById+"\n");
+	    	
+	    	if(productById.getId()==orderItemRequest.getProductId() && productById.getStock()>=orderItemRequest.getQuantity()) 
+	    	{
+	    		double price = productById.getPrice();
+	    		int quantity = orderItemRequest.getQuantity();
+	    		
+	    		totalamt += price*quantity;
+	    		
+	    	}else {
+	    		throw new QuantityMustBeLessThanStockException("Quantity must be less than the stock");
+	    	}
+	    	
+	    	
+		}
+	    order.setTotalAmount(new BigDecimal(totalamt));
+	    
+	    List<OrderItem> items = new ArrayList<>();
+	    for (OrderItem orderItem : items) {
+	    	orderItem.setProductId(null);
+	    	orderItem.setQuantity(null);
+	    	orderItem.setPrice(null);
+	    	orderItem.setSubtotal(null);
+	    	orderItem.setOrder(order);
+			
+		}
+	    
+	   order.setItems(items);
+	   OrderEntity neworder = orderRepository.save(order);
+	    
+	   return converToOrderResponse(neworder);
+	    
+	}
+
+	@Override
+	public OrderResponse getOrderById(Long id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<OrderResponse> getAllOrders() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<OrderResponse> getOrdersByUserId(Long userId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public OrderResponse updateOrderStatus(Long id, String status) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public OrderResponse cancelOrder(Long id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void deleteOrder(Long id) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	
+	
+	
+	
+				// CONVERTING OrderRequest TO OrderEntity
+				private OrderEntity converToOrderEntity(OrderRequest orderRequest) 
+				{
+					return modelMapper.map(orderRequest, OrderEntity.class);
+				}
+				// CONVERTING OrderEntity TO OrderResponse
+				private OrderResponse converToOrderResponse(OrderEntity orderEntity) {
+					return modelMapper.map(orderEntity, OrderResponse.class);
+				}
+
+	
+}

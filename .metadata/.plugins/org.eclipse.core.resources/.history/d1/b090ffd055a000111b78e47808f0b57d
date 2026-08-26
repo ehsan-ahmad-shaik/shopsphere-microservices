@@ -1,0 +1,16 @@
+package com.order.client;
+
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+
+import com.order.client.dto.Product;
+
+@FeignClient(name = "API-Gateway")
+public interface ProductClient 
+{
+
+	@GetMapping("/{id}")
+	public Product getProductById(Long id);
+	
+	
+}

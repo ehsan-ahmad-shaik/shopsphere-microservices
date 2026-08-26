@@ -1,0 +1,50 @@
+package com.user.serviceimpl;
+
+import java.time.LocalDateTime;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
+
+import com.user.dto.UserRequest;
+import com.user.dto.UserResponse;
+import com.user.entity.UserEntity;
+import com.user.repository.UserRepository;
+import com.user.service.UserService;
+import lombok.AllArgsConstructor;
+
+@Service
+@AllArgsConstructor
+public class UserServiceImpl implements UserService 
+{
+	
+	private final UserRepository userRepository;
+	private final ModelMapper modelMapper;
+	
+	// CREATE USER
+	@Override
+	public UserResponse createUser(UserRequest userRequest) 
+	{
+		// TODO Auto-generated method stub
+		UserEntity newuser = converToUserEntity(userRequest);
+		newuser.setCreatedAt(LocalDateTime.now());
+		UserEntity saveduser = userRepository.save(newuser);
+		return converToUserResponse(saveduser);
+	}
+	
+	
+	
+	
+	
+	
+	
+	// CONVERTING UserRequest TO UserEntity
+	private UserEntity converToUserEntity(UserRequest userRequest) 
+	{
+		return modelMapper.map(userRequest, UserEntity.class);
+	}
+	// CONVERTING UserEntity TO UserResponse
+	private UserResponse converToUserResponse(UserEntity userEntity) {
+		return modelMapper.map(userEntity, UserResponse.class);
+	}
+
+}

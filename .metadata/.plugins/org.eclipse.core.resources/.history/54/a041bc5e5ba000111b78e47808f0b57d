@@ -1,0 +1,119 @@
+package com.order.serviceimpl;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
+
+import com.order.dto.OrderRequest;
+import com.order.dto.OrderResponse;
+import com.order.entity.OrderEntity;
+import com.order.entity.OrderItem;
+import com.order.repository.OrderRepository;
+import com.order.service.OrderService;
+
+import lombok.AllArgsConstructor;
+
+
+@Service
+@AllArgsConstructor
+public class OrderServiceImpl implements OrderService 
+{
+	private final OrderRepository orderRepository;
+	private final ModelMapper modelMapper;	
+	
+	@Override
+	public OrderResponse createOrder(OrderRequest request) {
+
+	    // Create OrderEntity
+	    OrderEntity order = new OrderEntity();
+
+	    order.setUserId(request.getUserId());
+	    order.setTotalAmount(request.getTotalAmount());
+	    order.setStatus(request.getStatus());
+
+	    order.setCreatedAt(LocalDateTime.now());
+	    order.setUpdatedAt(LocalDateTime.now());
+
+	    // Create OrderItems
+	    List<OrderItem> orderItems = request.getItems()
+	            .stream()
+	            .map(itemRequest -> {
+
+	                OrderItem item = new OrderItem();
+
+	                item.setProductId(itemRequest.getProductId());
+	                item.setQuantity(itemRequest.getQuantity());
+	                item.setPrice(itemRequest.getPrice());
+	                item.setSubtotal(itemRequest.getSubtotal());
+
+	                // Very important
+	                item.setOrder(order);
+
+	                return item;
+	            })
+	            .toList();
+
+	    // Set items to order
+	    order.setItems(orderItems);
+
+	    // Save order and items because of CascadeType.ALL
+	    OrderEntity savedOrder = orderRepository.save(order);
+
+	    // Convert to response
+	    return converToOrderResponse(savedOrder);
+	}
+
+	@Override
+	public OrderResponse getOrderById(Long id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<OrderResponse> getAllOrders() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<OrderResponse> getOrdersByUserId(Long userId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public OrderResponse updateOrderStatus(Long id, String status) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public OrderResponse cancelOrder(Long id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void deleteOrder(Long id) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	
+	
+	
+	
+				// CONVERTING OrderRequest TO OrderEntity
+				private OrderEntity converToOrderEntity(OrderRequest orderRequest) 
+				{
+					return modelMapper.map(orderRequest, OrderEntity.class);
+				}
+				// CONVERTING OrderEntity TO OrderResponse
+				private OrderResponse converToOrderResponse(OrderEntity orderEntity) {
+					return modelMapper.map(orderEntity, OrderResponse.class);
+				}
+
+	
+}

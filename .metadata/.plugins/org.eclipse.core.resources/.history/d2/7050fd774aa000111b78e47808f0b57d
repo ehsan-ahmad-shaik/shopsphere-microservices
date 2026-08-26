@@ -1,0 +1,104 @@
+package com.product.serviceimpl;
+
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
+import com.product.dto.ProductRequest;
+import com.product.dto.ProductResponse;
+import com.product.entity.ProductEntity;
+import com.product.exception.ProductNotFoundException;
+import com.product.repository.ProductRepository;
+import com.product.service.ProductService;
+import lombok.AllArgsConstructor;
+
+@Service
+@AllArgsConstructor
+public class ProductServiceImpl implements ProductService
+{
+
+	private final ProductRepository productRepository;
+	private final ModelMapper modelMapper;
+	
+	@Override
+	public ProductResponse createProduct(ProductRequest request) {
+		// TODO Auto-generated method stub
+		ProductEntity newProduct = converToProductEntity(request);
+		newProduct.setCreatedAt(LocalDateTime.now());
+		newProduct.setUpdatedAt(LocalDateTime.now());
+		newProduct = productRepository.save(newProduct);
+		return converToUserResponse(newProduct);
+	}
+
+	@Override
+	public ProductResponse getProductById(Long id) {
+		// TODO Auto-generated method stub
+		ProductEntity product = productRepository.findById(id).orElseThrow(()->new ProductNotFoundException("Product Not Found by this id : "+id));
+		return converToUserResponse(product);
+	}
+
+	@Override
+	public List<ProductResponse> getAllProducts() {
+		// TODO Auto-generated method stub
+		List<ProductEntity> allproductslist = productRepository.findAll();
+		if (allproductslist.isEmpty()) {
+	        return Collections.emptyList();
+	    }
+		return allproductslist.stream()
+				.map(product->modelMapper.map(product, ProductResponse.class))
+				.toList();
+	}
+
+	@Override
+	public ProductResponse updateProduct(Long id, ProductRequest request) {
+		// TODO Auto-generated method stub
+		ProductEntity product = productRepository.findById(id).orElseThrow(()->new ProductNotFoundException("Product Not Found by this id : "+id));
+		product.setName(request.getName());
+		product.setDescription(request.getDescription());
+		product.setPrice(request.getPrice());
+		product.setCategory(request.getCategory());
+		product.setBrand(request.getBrand());
+		product.setCreatedAt(product.getCreatedAt());
+		product.setUpdatedAt(LocalDateTime.now());
+		
+		ProductEntity updatedProduct = productRepository.save(product);
+		return converToUserResponse(updatedProduct);
+	}
+
+	@Override
+	public void deleteProduct(Long id) {
+		// TODO Auto-generated method stub
+		productRepository.findById(id).orElseThrow(()->new ProductNotFoundException("Product Not Found by this id : "+id));
+		productRepository.deleteById(id);
+	}
+
+	@Override
+	public List<ProductResponse> getProductsByCategory(String category) {
+		// TODO Auto-generated method stub
+		List<ProductEntity> byCategory = productRepository.findByCategory(category);
+		if (byCategory.isEmpty()) {
+	        return Collections.emptyList();
+	    }
+		return byCategory.stream()
+				.map(product->modelMapper.map(product, ProductResponse.class))
+				.toList();
+	}
+
+	
+	
+	
+	
+			// CONVERTING UserRequest TO UserEntity
+			private ProductEntity converToProductEntity(ProductRequest productRequest) 
+			{
+				return modelMapper.map(productRequest, ProductEntity.class);
+			}
+			// CONVERTING UserEntity TO UserResponse
+			private ProductResponse converToUserResponse(ProductEntity productEntity) {
+				return modelMapper.map(productEntity, ProductResponse.class);
+			}
+	
+	
+	
+}

@@ -1,0 +1,10 @@
+package com.order.client;
+
+import org.springframework.cloud.openfeign.FeignClient;
+
+@FeignClient(name = "API-Gateway")
+public interface ProductClient 
+{
+
+	
+}
